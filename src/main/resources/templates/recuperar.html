@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>TechRepair | Recuperar</title>
+    <link rel="stylesheet" th:href="@{/plugins/fontawesome-free/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/dist/css/adminlte.min.css}">
+</head>
+<body class="hold-transition login-page">
+<div class="login-box">
+    <div class="login-logo"><b>TECH</b>REPAIR</div>
+    <div class="card">
+        <div class="card-body login-card-body">
+            <p class="login-box-msg">Ingresa tu correo para enviarte tu contraseña</p>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            <div th:if="${exito}" class="alert alert-success" th:text="${exito}"></div>
+            <form th:action="@{/recuperar}" method="post">
+                <div class="input-group mb-3">
+                    <input type="email" name="email" class="form-control" placeholder="Correo electrónico" required>
+                    <div class="input-group-append"><div class="input-group-text"><span class="fas fa-envelope"></span></div></div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Enviar contraseña</button>
+            </form>
+            <p class="mt-3 text-center"><a th:href="@{/login}">Volver al inicio</a></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

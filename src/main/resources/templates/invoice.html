@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>TechRepair | Factura</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" th:href="@{/plugins/fontawesome-free/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/dist/css/adminlte.min.css}">
+</head>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <span class="nav-link" th:text="'Técnico: ' + ${session.nombreUsuario}"></span>
+            </li>
+            <li class="nav-item">
+                <a th:href="@{/logout}" class="nav-link text-danger"><i class="fas fa-power-off"></i></a>
+            </li>
+        </ul>
+    </nav>
+
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <a th:href="@{/dashboard}" class="brand-link">
+            <span class="brand-text font-weight-light">TECHREPAIR ERP</span>
+        </a>
+        <div class="sidebar">
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column">
+                    <li class="nav-item"><a th:href="@{/dashboard}" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li class="nav-item"><a th:href="@{/clientes}" class="nav-link"><i class="nav-icon fas fa-users"></i> Clientes</a></li>
+                    <li class="nav-item"><a th:href="@{/productos}" class="nav-link"><i class="nav-icon fas fa-microchip"></i> Productos</a></li>
+                    <li class="nav-item"><a th:href="@{/servicios}" class="nav-link"><i class="nav-icon fas fa-tools"></i> Servicios</a></li>
+                    <li class="nav-item"><a th:href="@{/facturas}" class="nav-link active"><i class="nav-icon fas fa-file-invoice-dollar"></i> Facturación</a></li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <div class="content-wrapper">
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>Factura / Orden de Servicio</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a th:href="@{/facturas}">Historial</a></li>
+                            <li class="breadcrumb-item active">Factura</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+
+                        <div class="callout callout-info no-print">
+                            <h5><i class="fas fa-info"></i> Nota:</h5>
+                            Esta página ha sido optimizada para su impresión. Haz clic en el botón de imprimir al final de la factura.
+                        </div>
+
+                        <div class="invoice p-3 mb-3">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h4>
+                                        <i class="fas fa-laptop-medical"></i> TechRepair Center, Inc.
+                                        <small class="float-right" th:text="'Fecha: ' + ${#temporals.format(factura.fecha, 'dd/MM/yyyy')}"></small>
+                                    </h4>
+                                </div>
+                            </div>
+
+                            <div class="row invoice-info mt-4">
+                                <div class="col-sm-4 invoice-col">
+                                    De
+                                    <address>
+                                        <strong>TechRepair Center</strong><br>
+                                        Av. Universidad Politécnica<br>
+                                        Zacatecas, Zacatecas<br>
+                                        Teléfono: (492) 123-4567<br>
+                                        Email: contacto@techrepair.com
+                                    </address>
+                                </div>
+                                <div class="col-sm-4 invoice-col">
+                                    Para
+                                    <address>
+                                        <strong th:text="${factura.clienteNombre}"></strong><br>
+                                        Cliente Registrado en Sistema<br>
+                                    </address>
+                                </div>
+                                <div class="col-sm-4 invoice-col">
+                                    <b>Folio #<span th:text="${factura.id}"></span></b><br>
+                                    <br>
+                                    <b>Estado:</b>
+                                    <span th:if="${factura.pagada}" class="text-success"><i class="fas fa-check-circle"></i> PAGADO</span>
+                                    <span th:unless="${factura.pagada}" class="text-danger"><i class="fas fa-exclamation-circle"></i> PENDIENTE</span>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-12 table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>Cant</th>
+                                            <th>Concepto (Producto / Servicio)</th>
+                                            <th>Garantía</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td th:text="${factura.cantidad}">1</td>
+                                            <td th:text="${factura.itemNombre}">Reparación</td>
+                                            <td>30 Días</td>
+                                            <td th:text="'$' + ${factura.total}">$0.00</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-6">
+                                    <p class="lead">Métodos de Pago Aceptados:</p>
+                                    <div style="font-size: 2.5rem; color: #555;">
+                                        <i class="fab fa-cc-visa mr-1 text-primary"></i>
+                                        <i class="fab fa-cc-mastercard mr-1 text-danger"></i>
+                                        <i class="fab fa-cc-paypal mr-1 text-info"></i>
+                                        <i class="fas fa-money-bill-wave text-success"></i>
+                                    </div>
+                                    <p class="text-muted well well-sm shadow-none" style="margin-top: 10px;">
+                                        El pago debe realizarse en su totalidad para poder entregar el equipo. Los servicios de software no cuentan con garantía si el equipo es infectado nuevamente.
+                                    </p>
+                                </div>
+
+                                <div class="col-6">
+                                    <p class="lead" th:text="'Vencimiento: ' + ${#temporals.format(factura.fecha, 'dd/MM/yyyy')}"></p>
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <tr>
+                                                <th style="width:50%">Subtotal:</th>
+                                                <td th:text="'$' + ${factura.total}"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>IVA (16% incl.):</th>
+                                                <td>--</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Total a Pagar:</th>
+                                                <td><strong style="font-size: 1.2em;" th:text="'$' + ${factura.total}"></strong></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row no-print mt-4">
+                                <div class="col-12">
+                                    <a href="#" onclick="window.print();" class="btn btn-default"><i class="fas fa-print"></i> Imprimir</a>
+
+                                    <button th:if="${factura.pagada}" type="button" class="btn btn-outline-success float-right" disabled>
+                                        <i class="fas fa-check"></i> Pago Registrado
+                                    </button>
+
+                                    <a th:unless="${factura.pagada}" th:href="@{/facturas/pagar/{id}(id=${factura.id})}" class="btn btn-success float-right">
+                                        <i class="far fa-credit-card"></i> Registrar Pago
+                                    </a>
+
+                                    <a th:href="@{/facturas/pdf/{id}(id=${factura.id})}" class="btn btn-primary float-right" style="margin-right: 5px;">
+                                        <i class="fas fa-download"></i> Generar PDF
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script th:src="@{/plugins/jquery/jquery.min.js}"></script>
+<script th:src="@{/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/dist/js/adminlte.min.js}"></script>
+</body>
+</html>
