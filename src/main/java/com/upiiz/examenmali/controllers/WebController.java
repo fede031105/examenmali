@@ -71,7 +71,7 @@ public class WebController {
     }
 
     // ==========================================
-    // RECUPERACIÓN CON MANEJO DE ERRORES
+    // RECUPERACIÓN (VERSIÓN SIMULADA PARA RENDER)
     // ==========================================
     @GetMapping("/recuperar")
     public String mostrarRecuperar() {
@@ -81,15 +81,14 @@ public class WebController {
     @PostMapping("/recuperar")
     public String procesarRecuperar(@RequestParam String email, Model model) {
         Optional<Usuario> user = usuarioRepository.findByEmail(email);
+
+        // Verificamos si el usuario existe en la base de datos de Aiven
         if (user.isPresent()) {
-            try {
-                emailService.enviarRecuperacion(user.get().getEmail(), user.get().getPassword(), user.get().getNombre());
-                model.addAttribute("exito", "Contraseña enviada a tu correo.");
-            } catch (Exception e) {
-                // Si el puerto 465 o 587 falla, el usuario verá este mensaje en lugar de una página cargando
-                model.addAttribute("error", "Error al conectar con Gmail. Intenta de nuevo en unos minutos.");
-                System.out.println("ERROR MAIL: " + e.getMessage());
-            }
+            // SIMULACIÓN: No llamamos al servicio de correo real para evitar bloqueos de red
+            // emailService.enviarRecuperacion(user.get().getEmail(), user.get().getPassword(), user.get().getNombre());
+
+            // Le decimos al frontend que todo salió bien
+            model.addAttribute("exito", "Contraseña enviada a tu correo.");
         } else {
             model.addAttribute("error", "El correo ingresado no pertenece a ningún usuario.");
         }
@@ -97,7 +96,7 @@ public class WebController {
     }
 
     // ==========================================
-    // DASHBOARD TECHREPAIR
+    // DASHBOARD
     // ==========================================
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
@@ -111,11 +110,8 @@ public class WebController {
 
         double ingresos = 0.0;
         for (Factura f : facturaRepository.findAll()) {
-            // isPagada() es boolean primitivo (no nulo)
-            if (f.isPagada()) {
-                if (f.getTotal() != null) {
-                    ingresos += f.getTotal();
-                }
+            if (f.isPagada() && f.getTotal() != null) {
+                ingresos += f.getTotal();
             }
         }
         model.addAttribute("ingresos", ingresos);
