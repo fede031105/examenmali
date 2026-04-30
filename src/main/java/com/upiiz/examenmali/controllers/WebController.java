@@ -27,7 +27,7 @@ public class WebController {
     }
 
     // ==========================================
-    // LOGIN Y REGISTRO
+    // AUTENTICACIÓN
     // ==========================================
     @GetMapping("/login")
     public String login() {
@@ -71,7 +71,7 @@ public class WebController {
     }
 
     // ==========================================
-    // RECUPERACIÓN DE ACCESO
+    // RECUPERACIÓN CON MANEJO DE ERRORES
     // ==========================================
     @GetMapping("/recuperar")
     public String mostrarRecuperar() {
@@ -82,35 +82,37 @@ public class WebController {
     public String procesarRecuperar(@RequestParam String email, Model model) {
         Optional<Usuario> user = usuarioRepository.findByEmail(email);
         if (user.isPresent()) {
-            emailService.enviarRecuperacion(user.get().getEmail(), user.get().getPassword(), user.get().getNombre());
-            model.addAttribute("exito", "Contraseña enviada a tu correo.");
+            try {
+                emailService.enviarRecuperacion(user.get().getEmail(), user.get().getPassword(), user.get().getNombre());
+                model.addAttribute("exito", "Contraseña enviada a tu correo.");
+            } catch (Exception e) {
+                // Si el puerto 465 o 587 falla, el usuario verá este mensaje en lugar de una página cargando
+                model.addAttribute("error", "Error al conectar con Gmail. Intenta de nuevo en unos minutos.");
+                System.out.println("ERROR MAIL: " + e.getMessage());
+            }
         } else {
-            model.addAttribute("error", "Correo no encontrado.");
+            model.addAttribute("error", "El correo ingresado no pertenece a ningún usuario.");
         }
         return "recuperar";
     }
 
     // ==========================================
-    // DASHBOARD (TECHREPAIR ERP)
+    // DASHBOARD TECHREPAIR
     // ==========================================
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
-        // Validación de sesión activa
         if (session.getAttribute("nombreUsuario") == null) {
             return "redirect:/login";
         }
 
-        // Conteos para las tarjetas del Dashboard
         model.addAttribute("numClientes", clienteRepository.count());
         model.addAttribute("numProductos", productoRepository.count());
         model.addAttribute("numServicios", servicioReparacionRepository.count());
 
-        // Cálculo de ingresos (Solo facturas pagadas)
         double ingresos = 0.0;
         for (Factura f : facturaRepository.findAll()) {
-            // Corrección: Al ser un boolean primitivo, no se compara con null
+            // isPagada() es boolean primitivo (no nulo)
             if (f.isPagada()) {
-                // Solo validamos null si el 'total' en tu entidad es un objeto Double
                 if (f.getTotal() != null) {
                     ingresos += f.getTotal();
                 }
